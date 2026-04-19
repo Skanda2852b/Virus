@@ -1,28 +1,52 @@
-﻿# Virus Attendance System (Flask Web App)
+﻿You are correct. I apologize for the confusion. The code I provided earlier used **MobileNet SSD**, but you have implemented **YOLO** for phone detection.  
 
-## Features
-- Face recognition attendance with auto-marking
-- Teacher dashboard to edit attendance
-- Behavior monitoring (sleeping/phone detection) with email alerts to parents
-- Bulk student upload via CSV
-- Role-based login (Admin, Teacher, Student)
+Below is the corrected **simple step‑by‑step setup** that works with your YOLO‑based implementation. No extra model downloads are needed (YOLO weights are usually downloaded automatically by your code or are already included).
 
-## Setup
-1. Install Python 3.8+
-2. Install dependencies: pip install -r requirements.txt
-3. Download MobileNet SSD model files (see below)
-4. Run: python app.py
-5. Open browser at http://127.0.0.1:5000
-6. Default admin login: dmin / dmin123
+---
 
-## MobileNet SSD for phone detection
-Download these two files and place them in the project root:
-- [MobileNetSSD_deploy.caffemodel](https://github.com/chuanqi305/MobileNet-SSD/raw/master/MobileNetSSD_deploy.caffemodel)
-- [MobileNetSSD_deploy.prototxt](https://github.com/chuanqi305/MobileNet-SSD/raw/master/MobileNetSSD_deploy.prototxt)
+## **Simple Setup & Run (for YOLO version)**
 
-## Folder Structure
-- /dataset – stores face images of students
-- /models – stores trained LBPH face recognizer
-- /templates – HTML files
-- /static – CSS/JS files (create if needed)
-- /uploads – for CSV uploads
+### 1. **Open a terminal / PowerShell**  
+   Navigate to the project folder (e.g., `D:\Projects\Virus`).
+
+### 2. **Create a virtual environment (optional but recommended)**  
+   ```bash
+   python -m venv venv
+   ```
+   Activate:
+   - **Windows PowerShell:** `.\venv\Scripts\Activate`
+   - **Linux/macOS:** `source venv/bin/activate`
+
+### 3. **Install dependencies**  
+   ```bash
+   pip install -r requirements.txt
+   ```
+   (Make sure your `requirements.txt` includes `ultralytics` or `yolov5` if you use YOLO.)
+
+### 4. **Run the application**  
+   ```bash
+   python app.py
+   ```
+
+### 5. **Open your browser** and go to:  
+   ```
+   http://127.0.0.1:5000
+   ```
+
+### 6. **Login as admin**  
+   - Username: `admin`  
+   - Password: `admin123`
+
+### 7. **Use the system**  
+   - Add teachers → add students → capture face images → train model → start attendance → monitor behaviour.
+
+---
+
+## **Important Notes for YOLO**
+
+- No need to download MobileNet SSD files – your YOLO code will handle its own weights (usually downloaded on first run or placed in a `weights/` folder).
+- If you encounter missing YOLO weights, ensure your code downloads them automatically or place the `.pt` file manually as required.
+
+---
+
+That’s it. The system will start and you can log in immediately.
