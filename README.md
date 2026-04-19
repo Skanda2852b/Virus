@@ -1,4 +1,3 @@
-﻿You are correct. I apologize for the confusion. The code I provided earlier used **MobileNet SSD**, but you have implemented **YOLO** for phone detection.  
 
 Below is the corrected **simple step‑by‑step setup** that works with your YOLO‑based implementation. No extra model downloads are needed (YOLO weights are usually downloaded automatically by your code or are already included).
 
