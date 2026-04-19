@@ -12,7 +12,7 @@ Below is the corrected **simple step‑by‑step setup** that works with your YO
    ```bash
    python -m venv venv
    ```
-   Activate:
+   Activate(Run in Terminal):
    - **Windows PowerShell:** `.\venv\Scripts\Activate`
    - **Linux/macOS:** `source venv/bin/activate`
 
@@ -20,7 +20,6 @@ Below is the corrected **simple step‑by‑step setup** that works with your YO
    ```bash
    pip install -r requirements.txt
    ```
-   (Make sure your `requirements.txt` includes `ultralytics` or `yolov5` if you use YOLO.)
 
 ### 4. **Run the application**  
    ```bash
