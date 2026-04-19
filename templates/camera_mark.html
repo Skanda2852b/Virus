@@ -1,0 +1,139 @@
+{% extends "base.html" %}
+{% block content %}
+<div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.5rem;">
+    <div>
+        <div class="page-title" style="margin-bottom: 2px;">Live Attendance</div>
+        <p style="font-size: 13px; color: var(--text-secondary); margin: 0;">
+            <span
+                style="background: var(--brand-light); color: var(--brand); padding: 2px 8px; border-radius: 6px; font-weight: 500; font-size: 12px;">{{
+                date }}</span>
+            &nbsp;
+            <span
+                style="background: #ECFDF5; color: #065F46; padding: 2px 8px; border-radius: 6px; font-weight: 500; font-size: 12px;">{{
+                subject }}</span>
+        </p>
+    </div>
+    <button id="stopBtn" class="btn btn-danger" style="gap: 6px; display: flex; align-items: center;">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+            <rect x="4" y="4" width="16" height="16" rx="2" />
+        </svg>
+        Stop session
+    </button>
+</div>
+
+<div style="display: grid; grid-template-columns: 2fr 1fr; gap: 1.5rem;">
+    <div class="card">
+        <div class="card-header">
+            <span
+                style="width: 8px; height: 8px; background: #EF4444; border-radius: 50%; display: inline-block; animation: pulse 1.5s infinite;"></span>
+            Live camera
+        </div>
+        <div class="card-body" style="padding: 0; overflow: hidden; border-radius: 0 0 14px 14px;">
+            <video id="video" style="width: 100%; display: block;" autoplay muted></video>
+            <canvas id="canvas" style="display:none;"></canvas>
+        </div>
+        <div style="padding: 1rem; border-top: 1px solid var(--border); text-align: center;">
+            <button id="captureBtn" class="btn btn-primary"
+                style="gap: 6px; display: inline-flex; align-items: center;">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="3" />
+                    <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7z" />
+                </svg>
+                Start auto-recognition
+            </button>
+        </div>
+    </div>
+
+    <div>
+        <div class="card" style="height: 100%;">
+            <div class="card-header">
+                Attendance log
+                <span id="presentCount"
+                    style="margin-left: auto; background: #ECFDF5; color: #065F46; font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 20px;">0
+                    present</span>
+            </div>
+            <div id="attendanceLog" style="overflow-y: auto; max-height: 420px; padding: 0.5rem 0;">
+                <div style="padding: 1.5rem; text-align: center; color: var(--text-secondary); font-size: 13px;">
+                    Press start to begin recognition...
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    @keyframes pulse {
+
+        0%,
+        100% {
+            opacity: 1
+        }
+
+        50% {
+            opacity: 0.4
+        }
+    }
+</style>
+
+<script>
+    const video = document.getElementById('video');
+    const canvas = document.getElementById('canvas');
+    const captureBtn = document.getElementById('captureBtn');
+    const stopBtn = document.getElementById('stopBtn');
+    const logDiv = document.getElementById('attendanceLog');
+    const presentCount = document.getElementById('presentCount');
+    let stream = null;
+    let intervalId = null;
+    let count = 0;
+    const dateStr = "{{ date }}";
+
+    navigator.mediaDevices.getUserMedia({ video: true })
+        .then(s => { stream = s; video.srcObject = stream; })
+        .catch(err => alert('Camera access denied: ' + err));
+
+    function recognizeFace() {
+        if (!video.videoWidth) return;
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+        canvas.getContext('2d').drawImage(video, 0, 0, canvas.width, canvas.height);
+        canvas.toBlob(blob => {
+            const formData = new FormData();
+            formData.append('image', blob, 'frame.jpg');
+            formData.append('date', dateStr);
+            fetch('/attendance/mark_present', { method: 'POST', body: formData })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success && data.usn) {
+                        const existing = Array.from(logDiv.children).some(div => div.innerText.includes(data.usn));
+                        if (!existing) {
+                            count++;
+                            presentCount.innerText = count + ' present';
+                            const item = document.createElement('div');
+                            item.style.cssText = 'display:flex;align-items:center;gap:10px;padding:10px 14px;border-bottom:1px solid #F3F4F6;';
+                            item.innerHTML = `<div style="width:32px;height:32px;border-radius:50%;background:#ECFDF5;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;color:#059669;flex-shrink:0;">${data.name.slice(0, 2).toUpperCase()}</div><div><div style="font-size:13px;font-weight:500;color:var(--text-primary);">${data.name}</div><div style="font-size:11px;color:var(--text-secondary);">${data.usn} · ${new Date().toLocaleTimeString()}</div></div>`;
+                            if (logDiv.children.length === 1 && logDiv.children[0].tagName !== 'DIV'.toUpperCase()) logDiv.innerHTML = '';
+                            logDiv.prepend(item);
+                        }
+                    }
+                });
+        }, 'image/jpeg');
+    }
+
+    captureBtn.addEventListener('click', () => {
+        if (intervalId) clearInterval(intervalId);
+        intervalId = setInterval(recognizeFace, 3000);
+        captureBtn.disabled = true;
+        captureBtn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="3"/></svg> Recognizing...';
+    });
+
+    stopBtn.addEventListener('click', () => {
+        if (intervalId) clearInterval(intervalId);
+        if (stream) stream.getTracks().forEach(t => t.stop());
+        window.location.href = "{{ url_for('attendance.edit_attendance') }}";
+    });
+
+    window.addEventListener('beforeunload', () => {
+        if (stream) stream.getTracks().forEach(t => t.stop());
+    });
+</script>
+{% endblock %}

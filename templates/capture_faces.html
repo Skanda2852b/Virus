@@ -1,0 +1,133 @@
+{% extends "base.html" %}
+{% block content %}
+<div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1.75rem;">
+    <div
+        style="width: 44px; height: 44px; background: var(--brand-light); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 15px; font-weight: 700; color: var(--brand);">
+        {{ student.user.full_name[:2].upper() }}
+    </div>
+    <div>
+        <div class="page-title" style="margin-bottom: 1px;">Capture Face Samples</div>
+        <p style="margin: 0; font-size: 13px; color: var(--text-secondary);">{{ student.user.full_name }} &middot; {{
+            student.usn }}</p>
+    </div>
+</div>
+
+<div style="display: grid; grid-template-columns: 2fr 1fr; gap: 1.5rem;">
+    <div class="card">
+        <div class="card-header">
+            <span style="width: 8px; height: 8px; background: #EF4444; border-radius: 50%; display: inline-block;"
+                id="camDot"></span>
+            Camera feed
+        </div>
+        <div class="card-body" style="padding: 0; overflow: hidden;">
+            <video id="video" style="width: 100%; display: block;" autoplay muted></video>
+            <canvas id="canvas" style="display:none;"></canvas>
+        </div>
+        <div style="padding: 1rem; border-top: 1px solid var(--border); display: flex; align-items: center; gap: 10px;">
+            <button id="startBtn" class="btn btn-success" style="display: flex; align-items: center; gap: 6px;">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+                    <polygon points="5 3 19 12 5 21 5 3" />
+                </svg>
+                Start burst capture
+            </button>
+            <button id="stopBtn" class="btn btn-danger" disabled style="display: flex; align-items: center; gap: 6px;">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+                    <rect x="4" y="4" width="16" height="16" rx="2" />
+                </svg>
+                Stop
+            </button>
+            <span style="margin-left: auto; font-size: 13px; color: var(--text-secondary);">
+                <span id="imageCount" style="font-weight: 600; color: var(--text-primary); font-size: 17px;">0</span> /
+                120 frames
+            </span>
+        </div>
+    </div>
+
+    <div style="display: flex; flex-direction: column; gap: 1rem;">
+        <div class="card" style="flex: 1;">
+            <div class="card-header">Captured thumbnails</div>
+            <div id="imageList"
+                style="padding: 10px; display: flex; flex-wrap: wrap; gap: 5px; max-height: 340px; overflow-y: auto; align-content: flex-start;">
+                <p style="font-size: 13px; color: var(--text-secondary); padding: 0.5rem; width: 100%;">No images yet.
+                </p>
+            </div>
+        </div>
+        <div style="background: #FFFBEB; border: 1px solid #FDE68A; border-radius: 10px; padding: 1rem;">
+            <p
+                style="font-size: 12px; font-weight: 600; color: #92400E; text-transform: uppercase; letter-spacing: 0.4px; margin-bottom: 8px;">
+                Instructions</p>
+            <ul style="font-size: 13px; color: #78350F; margin: 0; padding-left: 1.2rem; line-height: 1.8;">
+                <li>Look directly at the camera</li>
+                <li>Slowly move head up/down/left/right</li>
+                <li>Ensure good lighting on your face</li>
+                <li>Aim for at least 30–40 clear images</li>
+                <li>Capture runs 60 sec or 120 images max</li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<script>
+    const video = document.getElementById('video');
+    const canvas = document.getElementById('canvas');
+    const startBtn = document.getElementById('startBtn');
+    const stopBtn = document.getElementById('stopBtn');
+    const imageCountSpan = document.getElementById('imageCount');
+    const imageListDiv = document.getElementById('imageList');
+    let stream = null, captureInterval = null, isCapturing = false;
+
+    navigator.mediaDevices.getUserMedia({ video: true })
+        .then(s => { stream = s; video.srcObject = stream; })
+        .catch(err => alert('Camera access denied: ' + err));
+
+    function captureImage() {
+        if (!video.videoWidth) return;
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+        canvas.getContext('2d').drawImage(video, 0, 0, canvas.width, canvas.height);
+        canvas.toBlob(blob => {
+            const formData = new FormData();
+            formData.append('image', blob, 'face.jpg');
+            formData.append('student_id', '{{ student.id }}');
+            fetch("{{ url_for('teacher.save_face_image') }}", { method: 'POST', body: formData })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        const count = data.count;
+                        imageCountSpan.innerText = count;
+                        if (imageListDiv.querySelector('p')) imageListDiv.innerHTML = '';
+                        const img = document.createElement('img');
+                        img.src = URL.createObjectURL(blob);
+                        img.style.cssText = 'width:58px;height:58px;object-fit:cover;border-radius:6px;border:1px solid var(--border);';
+                        imageListDiv.appendChild(img);
+                        imageListDiv.scrollTop = imageListDiv.scrollHeight;
+                        if (count >= 120 && isCapturing) { stopCapture(); alert('Reached 120 images. Capture complete.'); }
+                    }
+                });
+        }, 'image/jpeg');
+    }
+
+    function startCapture() {
+        if (isCapturing) return;
+        isCapturing = true;
+        captureInterval = setInterval(captureImage, 100);
+        startBtn.disabled = true;
+        stopBtn.disabled = false;
+        setTimeout(() => { if (isCapturing) { stopCapture(); alert('60 seconds complete. Capture stopped.'); } }, 60000);
+    }
+
+    function stopCapture() {
+        if (captureInterval) { clearInterval(captureInterval); captureInterval = null; }
+        isCapturing = false;
+        startBtn.disabled = false;
+        stopBtn.disabled = true;
+    }
+
+    startBtn.addEventListener('click', startCapture);
+    stopBtn.addEventListener('click', stopCapture);
+    window.addEventListener('beforeunload', () => {
+        if (stream) stream.getTracks().forEach(t => t.stop());
+        if (captureInterval) clearInterval(captureInterval);
+    });
+</script>
+{% endblock %}

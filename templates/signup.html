@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+{% block content %}
+<div style="min-height: 80vh; display: flex; align-items: center; justify-content: center; padding: 2rem 0;">
+    <div style="width: 100%; max-width: 460px;">
+        <div style="text-align: center; margin-bottom: 2rem;">
+            <h1
+                style="font-size: 22px; font-weight: 700; color: var(--text-primary); letter-spacing: -0.4px; margin: 0 0 4px;">
+                Create student account</h1>
+            <p style="font-size: 14px; color: var(--text-secondary); margin: 0;">Fill in your details to get started</p>
+        </div>
+        <div class="card">
+            <div class="card-body" style="padding: 1.75rem;">
+                <form method="POST" action="{{ url_for('auth.signup') }}">
+                    <input type="hidden" name="role" value="student">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;" class="mb-3">
+                        <div>
+                            <label style="font-size: 13px; font-weight: 500; margin-bottom: 6px; display: block;">Full
+                                name</label>
+                            <input type="text" name="full_name" class="form-control" placeholder="e.g. Arjun Sharma"
+                                required>
+                        </div>
+                        <div>
+                            <label
+                                style="font-size: 13px; font-weight: 500; margin-bottom: 6px; display: block;">Username</label>
+                            <input type="text" name="username" class="form-control" placeholder="Choose a username"
+                                required>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label style="font-size: 13px; font-weight: 500; margin-bottom: 6px; display: block;">Email
+                            address</label>
+                        <input type="email" name="email" class="form-control" placeholder="you@college.edu" required>
+                    </div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;" class="mb-3">
+                        <div>
+                            <label
+                                style="font-size: 13px; font-weight: 500; margin-bottom: 6px; display: block;">USN</label>
+                            <input type="text" name="usn" class="form-control" placeholder="e.g. 1RV21CS001" required>
+                        </div>
+                        <div>
+                            <label style="font-size: 13px; font-weight: 500; margin-bottom: 6px; display: block;">Parent
+                                email</label>
+                            <input type="email" name="parent_email" class="form-control" placeholder="parent@email.com"
+                                required>
+                        </div>
+                    </div>
+                    <div class="mb-4">
+                        <label
+                            style="font-size: 13px; font-weight: 500; margin-bottom: 6px; display: block;">Password</label>
+                        <input type="password" name="password" class="form-control"
+                            placeholder="Create a strong password" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100" style="padding: 10px; font-size: 15px;">Create
+                        account</button>
+                </form>
+                <div
+                    style="text-align: center; margin-top: 1.25rem; padding-top: 1.25rem; border-top: 1px solid var(--border);">
+                    <p style="font-size: 13px; color: var(--text-secondary); margin: 0;">Already have an account? <a
+                            href="{{ url_for('auth.login') }}"
+                            style="color: var(--brand); font-weight: 500; text-decoration: none;">Sign in</a></p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

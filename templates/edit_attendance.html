@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="page-title">Edit Attendance</div>
+<div class="page-subtitle">Review and correct attendance records by date or subject</div>
+
+<div class="card mb-4">
+    <div class="card-body">
+        <form method="GET" action="{{ url_for('attendance.edit_attendance') }}">
+            <div style="display: grid; grid-template-columns: 1fr 1fr auto auto; gap: 12px; align-items: end;">
+                <div>
+                    <label
+                        style="font-size: 12px; font-weight: 500; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.4px; margin-bottom: 5px; display: block;">Date</label>
+                    <input type="date" name="filter_date" class="form-control" value="{{ filter_date }}">
+                </div>
+                <div>
+                    <label
+                        style="font-size: 12px; font-weight: 500; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.4px; margin-bottom: 5px; display: block;">Subject</label>
+                    <select name="filter_subject" class="form-select">
+                        <option value="">All subjects</option>
+                        {% for subj in subjects %}
+                        <option value="{{ subj }}" {% if filter_subject==subj %}selected{% endif %}>{{ subj }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div>
+                    <button type="submit" class="btn btn-primary" style="height: 38px;">Filter</button>
+                </div>
+                <div>
+                    <a href="{{ url_for('attendance.edit_attendance') }}" class="btn btn-secondary"
+                        style="height: 38px; display: flex; align-items: center;">Clear</a>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="card" style="overflow: hidden;">
+    <table class="table mb-0">
+        <thead>
+            <tr>
+                <th>Student</th>
+                <th>USN</th>
+                <th>Date</th>
+                <th>Subject</th>
+                <th>Status</th>
+                <th>Marked by</th>
+                <th style="text-align: right;">Update</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for att in attendances %}
+            <tr>
+                <td style="font-weight: 500;">{{ att.student.user.full_name }}</td>
+                <td style="font-family: monospace; font-size: 13px; color: var(--text-secondary);">{{ att.student.usn }}
+                </td>
+                <td style="color: var(--text-secondary); font-size: 13px;">{{ att.date }}</td>
+                <td>{{ att.subject }}</td>
+                <td>
+                    {% if att.status == 'Present' %}
+                    <span class="badge bg-success">Present</span>
+                    {% else %}
+                    <span class="badge bg-danger">Absent</span>
+                    {% endif %}
+                </td>
+                <td style="color: var(--text-secondary); font-size: 13px;">{{ att.marked_by }}</td>
+                <td style="text-align: right;">
+                    <form method="POST"
+                        style="display: flex; align-items: center; gap: 8px; justify-content: flex-end;">
+                        <input type="hidden" name="attendance_id" value="{{ att.id }}">
+                        <select name="status" class="form-select"
+                            style="width: auto; font-size: 13px; padding: 5px 10px; height: auto;">
+                            <option value="Present" {% if att.status=='Present' %}selected{% endif %}>Present</option>
+                            <option value="Absent" {% if att.status=='Absent' %}selected{% endif %}>Absent</option>
+                        </select>
+                        <button type="submit" class="btn btn-warning btn-sm">Save</button>
+                    </form>
+                </td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="7" style="text-align: center; padding: 2.5rem; color: var(--text-secondary);">No records
+                    found for the selected filters.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

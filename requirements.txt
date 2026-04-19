@@ -1,0 +1,9 @@
+﻿Flask==2.3.3
+Flask-SQLAlchemy==3.1.1
+Flask-Login==0.6.2
+Flask-Mail==0.9.1
+opencv-python==4.8.1.78
+numpy==1.24.3
+pandas==2.0.3
+Pillow==10.0.0
+scipy==1.10.1

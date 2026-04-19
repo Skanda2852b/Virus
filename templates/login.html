@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% block content %}
+<div style="min-height: 80vh; display: flex; align-items: center; justify-content: center;">
+    <div style="width: 100%; max-width: 400px;">
+        <div style="text-align: center; margin-bottom: 2rem;">
+            <div
+                style="width: 52px; height: 52px; background: var(--brand); border-radius: 14px; margin: 0 auto 14px; display: flex; align-items: center; justify-content: center;">
+                <svg width="26" height="26" viewBox="0 0 24 24" fill="white">
+                    <path
+                        d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z" />
+                </svg>
+            </div>
+            <h1
+                style="font-size: 22px; font-weight: 700; color: var(--text-primary); letter-spacing: -0.4px; margin: 0 0 4px;">
+                Welcome back</h1>
+            <p style="font-size: 14px; color: var(--text-secondary); margin: 0;">Sign in to your Attendify account</p>
+        </div>
+        <div class="card">
+            <div class="card-body" style="padding: 1.75rem;">
+                <form method="POST" action="{{ url_for('auth.login') }}">
+                    <div class="mb-3">
+                        <label
+                            style="font-size: 13px; font-weight: 500; color: var(--text-primary); margin-bottom: 6px; display: block;">Username</label>
+                        <input type="text" name="username" class="form-control" placeholder="Enter your username"
+                            required>
+                    </div>
+                    <div class="mb-4">
+                        <label
+                            style="font-size: 13px; font-weight: 500; color: var(--text-primary); margin-bottom: 6px; display: block;">Password</label>
+                        <input type="password" name="password" class="form-control" placeholder="Enter your password"
+                            required>
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100" style="padding: 10px; font-size: 15px;">Sign
+                        in</button>
+                </form>
+                <div
+                    style="text-align: center; margin-top: 1.25rem; padding-top: 1.25rem; border-top: 1px solid var(--border);">
+                    <p style="font-size: 13px; color: var(--text-secondary); margin: 0;">New student? <a
+                            href="{{ url_for('auth.signup') }}"
+                            style="color: var(--brand); font-weight: 500; text-decoration: none;">Create account</a></p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

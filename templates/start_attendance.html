@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block content %}
+<div style="max-width: 500px; margin: 3rem auto;">
+    <div class="page-title" style="text-align: center; margin-bottom: 4px;">Start Attendance Session</div>
+    <p style="text-align: center; font-size: 14px; color: var(--text-secondary); margin-bottom: 2rem;">Select a date and
+        subject to begin face recognition</p>
+    <div class="card">
+        <div class="card-body" style="padding: 2rem;">
+            <form method="POST">
+                <div class="mb-4">
+                    <label style="font-size: 13px; font-weight: 500; margin-bottom: 6px; display: block;">Session
+                        date</label>
+                    <input type="date" name="date" class="form-control" required>
+                </div>
+                <div class="mb-5">
+                    <label
+                        style="font-size: 13px; font-weight: 500; margin-bottom: 6px; display: block;">Subject</label>
+                    <input type="text" name="subject" class="form-control"
+                        placeholder="e.g. Data Structures, Physics, English" required>
+                </div>
+                <button type="submit" class="btn btn-primary w-100" style="padding: 11px; font-size: 15px;">
+                    Launch camera &amp; mark attendance
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
